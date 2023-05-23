@@ -4,7 +4,7 @@
   "description": "Open Discord RPC server for atypical setups",
   "main": "src/server.js",
   "scripts": {
-    "start": "node src"
+    "start": "node --experimental-json-modules src"
   },
   "repository": {
     "type": "git",

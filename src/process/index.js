@@ -1,11 +1,17 @@
 const rgb = (r, g, b, msg) => `\x1b[38;2;${r};${g};${b}m${msg}\x1b[0m`;
 const log = (...args) => console.log(`[${rgb(88, 101, 242, 'arRPC')} > ${rgb(237, 66, 69, 'process')}]`, ...args);
 
-import DetectableDB from "./detectable.json" assert { type: "json" };
+import DetectableDB from "./detectable.json"
 
 import * as Natives from './native/index.js';
 const Native = Natives[process.platform];
 
+if (!Object.hasOwnProperty(String.prototype, 'replaceAll')) {
+  String.prototype.replaceAll = function(find, replace) {
+    var str = this;
+    return str.replace(new RegExp(find.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'g'), replace);
+  };
+}
 
 const timestamps = {}, names = {}, pids = {};
 export default class ProcessServer {
@@ -23,14 +29,14 @@ export default class ProcessServer {
   }
 
   async scan() {
-    const startTime = performance.now();
+    // const startTime = performance.now();
     const processes = await Native.getProcesses();
     const ids = [];
 
     // log(`got processed in ${(performance.now() - startTime).toFixed(2)}ms`);
 
     for (const [ pid, _path ] of processes) {
-      const path = _path.toLowerCase().replaceAll('\\', '/');
+      const path = /** @type {string} */ (_path).toLowerCase().replaceAll('\\', '/');
       const toCompare = [ path.split('/').pop(), path.split('/').slice(-2).join('/') ];
 
       for (const p of toCompare.slice()) { // add more possible tweaked paths for less false negatives
